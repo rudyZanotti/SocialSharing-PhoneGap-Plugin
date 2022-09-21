@@ -17,11 +17,13 @@
 - (void)shareVia:(CDVInvokedUrlCommand*)command;
 - (void)shareViaTwitter:(CDVInvokedUrlCommand*)command;
 - (void)shareViaFacebook:(CDVInvokedUrlCommand*)command;
+- (void)shareViaFacebookStory:(CDVInvokedUrlCommand*)command;
 - (void)shareViaFacebookWithPasteMessageHint:(CDVInvokedUrlCommand*)command;
 - (void)shareViaWhatsApp:(CDVInvokedUrlCommand*)command;
 - (void)shareViaSMS:(CDVInvokedUrlCommand*)command;
 - (void)shareViaEmail:(CDVInvokedUrlCommand*)command;
 - (void)shareViaInstagram:(CDVInvokedUrlCommand*)command;
+- (void)shareViaInstagramStory:(CDVInvokedUrlCommand*)command;
 
 - (void)saveToPhotoAlbum:(CDVInvokedUrlCommand*)command;
 

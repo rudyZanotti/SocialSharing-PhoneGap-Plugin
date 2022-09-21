@@ -50,9 +50,11 @@ public class SocialSharing extends CordovaPlugin {
   private static final String ACTION_SHARE_VIA = "shareVia";
   private static final String ACTION_SHARE_VIA_TWITTER_EVENT = "shareViaTwitter";
   private static final String ACTION_SHARE_VIA_FACEBOOK_EVENT = "shareViaFacebook";
+  private static final String ACTION_SHARE_VIA_FACEBOOK_STORY_EVENT = "shareViaFacebookStory";
   private static final String ACTION_SHARE_VIA_FACEBOOK_WITH_PASTEMESSAGEHINT = "shareViaFacebookWithPasteMessageHint";
   private static final String ACTION_SHARE_VIA_WHATSAPP_EVENT = "shareViaWhatsApp";
   private static final String ACTION_SHARE_VIA_INSTAGRAM_EVENT = "shareViaInstagram";
+  private static final String ACTION_SHARE_VIA_INSTAGRAM_STORY_EVENT = "shareViaInstagramStory";
   private static final String ACTION_SHARE_VIA_SMS_EVENT = "shareViaSMS";
   private static final String ACTION_SHARE_VIA_EMAIL_EVENT = "shareViaEmail";
 
@@ -88,6 +90,8 @@ public class SocialSharing extends CordovaPlugin {
       return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), "twitter", null, false, true);
     } else if (ACTION_SHARE_VIA_FACEBOOK_EVENT.equals(action)) {
       return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.isNull(3) ? args.getJSONArray(2) : new JSONArray(), args.getString(3), "com.facebook.katana", null, false, true, "com.facebook.composer.shareintent");
+    } else if (ACTION_SHARE_VIA_FACEBOOK_STORY_EVENT.equals(action)) {
+      return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.isNull(3) ? args.getJSONArray(2) : new JSONArray(), args.getString(3), "com.facebook.katana", null, false, true, "com.facebook.composer.shareintent");
     } else if (ACTION_SHARE_VIA_FACEBOOK_WITH_PASTEMESSAGEHINT.equals(action)) {
       this.pasteMessage = args.getString(4);
       return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.isNull(3) ? args.getJSONArray(2) : new JSONArray(), args.getString(3), "com.facebook.katana", null, false, true, "com.facebook.composer.shareintent");
@@ -104,6 +108,11 @@ public class SocialSharing extends CordovaPlugin {
         copyHintToClipboard(args.getString(0), "Instagram paste message");
       }
       return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), "com.instagram.android", null, false, true, "com.instagram.share.handleractivity.ShareHandlerActivity");
+    } else if (ACTION_SHARE_VIA_INSTAGRAM_STORY_EVENT.equals(action)) {
+      if (notEmpty(args.getString(0))) {
+        copyHintToClipboard(args.getString(0), "Instagram paste message");
+      }
+      return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), "com.instagram.android", null, false, true, "com.instagram.share.handleractivity.StoryShareHandlerActivity");
     } else if (ACTION_CAN_SHARE_VIA.equals(action)) {
       return doSendIntent(callbackContext, args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), args.getString(4), null, true, true);
     } else if (ACTION_CAN_SHARE_VIA_EMAIL.equals(action)) {

@@ -209,6 +209,10 @@ static NSString *const kShareOptionIPadCoordinates = @"iPadCoordinates";
   [self shareViaInternal:command type:SLServiceTypeFacebook];
 }
 
+- (void)shareViaFacebookStory:(CDVInvokedUrlCommand*)command {
+  [self shareViaInternal:command type:SLServiceTypeFacebook];
+}
+
 - (void)shareViaFacebookWithPasteMessageHint:(CDVInvokedUrlCommand*)command {
   // If Fb app is installed a message is not prefilled.
   // When shared through the default iOS widget (iOS Settings > Facebook) the message is prefilled already.
@@ -619,6 +623,59 @@ static NSString *const kShareOptionIPadCoordinates = @"iPadCoordinates";
     [_documentInteractionController presentOpenInMenuFromRect:CGRectZero inView:self.webView animated:YES];
   });
 }
+
+- (void)shareViaInstagramStory:(CDVInvokedUrlCommand*)command {
+
+  // on iOS9 canShareVia('instagram'..) will only work if instagram:// is whitelisted.
+  // If it's not, this method will ask permission to the user on iOS9 for opening the app,
+  // which is of course better than Instagram sharing not working at all because you forgot to whitelist it.
+  // Tradeoff: on iOS9 this method will always return true, so make sure to whitelist it and call canShareVia('instagram'..)
+  if (!IsAtLeastiOSVersion(@"9.0")) {
+    if (![self canShareViaInstagram]) {
+      CDVPluginResult * pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not available"];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      return;
+    }
+  }
+
+  NSString *message   = [command.arguments objectAtIndex:0];
+  // subject is not supported by the SLComposeViewController
+  NSArray  *filenames = [command.arguments objectAtIndex:2];
+
+  // only use the first image (for now.. maybe we can share in a loop?)
+  UIImage* image = nil;
+  for (NSString* filename in filenames) {
+    image = [self getImage:filename];
+    break;
+  }
+
+//  NSData *imageObj = [NSData dataFromBase64String:objectAtIndex0];
+  NSString *tmpDir = NSTemporaryDirectory();
+  NSString *path = [tmpDir stringByAppendingPathComponent:@"instagram.igo"];
+  [UIImageJPEGRepresentation(image, 1.0) writeToFile:path atomically:YES];
+
+  _documentInteractionController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:path]];
+  _documentInteractionController.delegate = self;
+  _documentInteractionController.UTI = @"com.instagram.exclusivegram";
+
+  if (message != (id)[NSNull null]) {
+    // no longer working, so ..
+    _documentInteractionController.annotation = @{@"InstagramCaption" : message};
+
+    // .. we put the message on the clipboard (you app can prompt the user to paste it)
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    [pasteboard setValue:message forPasteboardType:@"public.utf8-plain-text"];
+  }
+
+  // remember the command for the delegate method
+  _command = command;
+
+  // test for #513
+  dispatch_async(dispatch_get_main_queue(), ^(void){
+    [_documentInteractionController presentOpenInMenuFromRect:CGRectZero inView:self.webView animated:YES];
+  });
+}
+
 
 - (void)shareViaWhatsApp:(CDVInvokedUrlCommand*)command {
 
